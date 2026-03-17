@@ -5,66 +5,68 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GhostTalk 👻</title>
   <style>
-    /* Moderní temný design */
+    :root {
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --bg: #0f172a;
+      --card-bg: rgba(30, 41, 59, 0.7);
+      --text: #f8fafc;
+    }
+
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: radial-gradient(circle at center, #1e293b, #0f172a);
-      color: #f8fafc;
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      background: radial-gradient(circle at top, #1e293b, #0f172a);
+      color: var(--text);
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
       margin: 0;
-      overflow: hidden;
     }
 
-    .chat-card {
+    .chat-container {
       width: 95%;
       max-width: 450px;
-      height: 85vh;
-      background: rgba(30, 41, 59, 0.8);
-      backdrop-filter: blur(12px); /* Glassmorphism efekt */
+      height: 90vh;
+      background: var(--card-bg);
+      backdrop-filter: blur(15px);
       border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 24px;
+      border-radius: 28px;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
     }
 
     .header {
       padding: 20px;
       text-align: center;
+      background: rgba(15, 23, 42, 0.4);
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     h2 {
-      margin: 0;
-      font-size: 1.5rem;
-      background: linear-gradient(90deg, #818cf8, #c084fc);
+      margin: 0 0 10px 0;
+      font-size: 1.6rem;
+      letter-spacing: 1px;
+      background: linear-gradient(to right, #818cf8, #c084fc);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
     #loginBtn {
-      background: #4f46e5;
+      background: var(--primary);
       color: white;
       border: none;
       padding: 10px 20px;
-      border-radius: 12px;
-      cursor: pointer;
+      border-radius: 14px;
       font-weight: 600;
-      margin: 10px auto;
-      display: block;
-      transition: all 0.3s ease;
+      cursor: pointer;
+      transition: all 0.3s;
     }
 
-    #loginBtn:hover {
-      background: #6366f1;
-      transform: translateY(-2px);
-    }
+    #loginBtn:active { transform: scale(0.95); }
 
-    /* Oblast zpráv */
     #chat {
       flex-grow: 1;
       overflow-y: auto;
@@ -72,47 +74,45 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
-      scroll-behavior: smooth;
     }
 
-    /* Styl bublin */
+    /* Bubliny */
     .msg {
       max-width: 80%;
-      padding: 10px 16px;
-      border-radius: 18px;
+      padding: 12px 16px;
+      border-radius: 20px;
       font-size: 0.95rem;
-      line-height: 1.4;
       position: relative;
-      animation: popIn 0.3s ease-out;
-    }
-
-    .msg.other {
-      background: #334155;
-      align-self: flex-start;
-      border-bottom-left-radius: 4px;
-    }
-
-    .msg.me {
-      background: #4f46e5;
-      align-self: flex-end;
-      border-bottom-right-radius: 4px;
+      animation: fadeIn 0.3s ease;
+      word-wrap: break-word;
     }
 
     .msg b {
       display: block;
-      font-size: 0.75rem;
-      opacity: 0.8;
+      font-size: 0.7rem;
+      text-transform: uppercase;
       margin-bottom: 4px;
+      opacity: 0.7;
     }
 
-    /* Vstupní pole */
-    .input-area {
+    .me {
+      align-self: flex-end;
+      background: var(--primary);
+      border-bottom-right-radius: 4px;
+    }
+
+    .other {
+      align-self: flex-start;
+      background: #334155;
+      border-bottom-left-radius: 4px;
+    }
+
+    /* Vstup */
+    .input-box {
       padding: 20px;
       display: flex;
       gap: 10px;
-      background: rgba(15, 23, 42, 0.5);
-      border-bottom-left-radius: 24px;
-      border-bottom-right-radius: 24px;
+      background: rgba(15, 23, 42, 0.6);
     }
 
     input {
@@ -120,54 +120,41 @@
       background: #1e293b;
       border: 1px solid #475569;
       color: white;
-      padding: 12px 18px;
-      border-radius: 14px;
+      padding: 14px;
+      border-radius: 16px;
       outline: none;
-      transition: border 0.3s;
-    }
-
-    input:focus {
-      border-color: #818cf8;
     }
 
     .send-btn {
       background: #10b981;
       border: none;
       color: white;
-      width: 48px;
-      border-radius: 14px;
+      width: 50px;
+      border-radius: 16px;
       cursor: pointer;
       font-size: 1.2rem;
-      transition: 0.3s;
     }
 
-    .send-btn:hover {
-      background: #059669;
-      transform: scale(1.05);
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Scrollbar */
-    #chat::-webkit-scrollbar { width: 5px; }
-    #chat::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
-
-    @keyframes popIn {
-      from { opacity: 0; transform: scale(0.9); }
-      to { opacity: 1; transform: scale(1); }
-    }
+    #chat::-webkit-scrollbar { width: 4px; }
+    #chat::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
   </style>
 </head>
 <body>
 
-<div class="chat-card">
+<div class="chat-container">
   <div class="header">
     <h2>👻 GhostTalk</h2>
-    <button id="loginBtn" onclick="login()">Přihlásit se Googlem</button>
+    <button id="loginBtn" onclick="login()">Přihlásit se přes Google</button>
   </div>
 
-  <div id="chat">
-    </div>
+  <div id="chat"></div>
 
-  <div class="input-area">
+  <div class="input-box">
     <input id="messageInput" placeholder="Napiš zprávu..." autocomplete="off">
     <button class="send-btn" onclick="sendMessage()">➤</button>
   </div>
@@ -175,10 +162,9 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-  // Konfigurace (Použij svoje údaje)
   const firebaseConfig = {
     apiKey: "AIzaSyB8olAwCB08KQ31UVXBt23sbrTwZlpsmg8",
     authDomain: "ghosttalk1.firebaseapp.com",
@@ -192,17 +178,27 @@
 
   let currentUser = null;
 
-  // Sledování stavu přihlášení
+  // Kontrola po návratu z Google přihlášení
+  getRedirectResult(auth).then((result) => {
+    if (result?.user) {
+      currentUser = result.user;
+      updateUI(currentUser);
+    }
+  }).catch(err => console.error("Auth error:", err));
+
+  // Sledování uživatele (trvalé přihlášení)
   onAuthStateChanged(auth, (user) => {
     if (user) {
       currentUser = user;
-      document.getElementById("loginBtn").innerText = `Jsi jako ${user.displayName}`;
-      document.getElementById("loginBtn").style.background = "#334155";
+      updateUI(user);
     }
   });
 
-  // Zpracování výsledku přesměrování (řeší chybu na mobilech)
-  getRedirectResult(auth).catch(err => console.error("Chyba redirectu:", err));
+  function updateUI(user) {
+    const btn = document.getElementById("loginBtn");
+    btn.innerText = `Jsi jako ${user.displayName.split(' ')[0]}`;
+    btn.style.background = "rgba(255,255,255,0.1)";
+  }
 
   async function login() {
     await signInWithRedirect(auth, provider);
@@ -212,44 +208,38 @@
     const input = document.getElementById("messageInput");
     const text = input.value.trim();
 
-    if (!currentUser) return alert("Nejdřív se přihlas!");
+    if (!currentUser) return alert("Musíš se přihlásit!");
     if (!text) return;
 
     await addDoc(collection(db, "messages"), {
       text: text,
       name: currentUser.displayName,
       uid: currentUser.uid,
-      timestamp: Date.now()
+      time: Date.now()
     });
-
     input.value = "";
   }
 
-  // Real-time načítání zpráv
-  const q = query(collection(db, "messages"), orderBy("timestamp", "asc"));
-  onSnapshot(q, (snapshot) => {
+  // Načítání zpráv
+  const q = query(collection(db, "messages"), orderBy("time", "asc"));
+  onSnapshot(q, (snap) => {
     const chat = document.getElementById("chat");
     chat.innerHTML = "";
-
-    snapshot.forEach(doc => {
-      const msg = doc.data();
-      const isMe = currentUser && msg.uid === currentUser.uid;
-      
-      const div = document.createElement("div");
-      div.className = `msg ${isMe ? 'me' : 'other'}`;
-      div.innerHTML = `<b>${msg.name}</b>${msg.text}`;
-      chat.appendChild(div);
+    snap.forEach(doc => {
+      const m = doc.data();
+      const isMe = currentUser && m.uid === currentUser.uid;
+      chat.innerHTML += `
+        <div class="msg ${isMe ? 'me' : 'other'}">
+          <b>${m.name}</b>
+          ${m.text}
+        </div>`;
     });
-
     chat.scrollTop = chat.scrollHeight;
   });
 
-  // Eventy pro tlačítka
   window.login = login;
   window.sendMessage = sendMessage;
-  document.getElementById("messageInput").addEventListener("keypress", (e) => {
-    if (e.key === "Enter") sendMessage();
-  });
+  document.getElementById("messageInput").addEventListener("keypress", e => e.key === "Enter" && sendMessage());
 </script>
 
 </body>
