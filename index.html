@@ -1,25 +1,159 @@
 <!DOCTYPE html>
-<html>
+<html lang="cs">
 <head>
-  <title>GhostTalk</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GhostTalk 👻</title>
+  <style>
+    /* Moderní CSS Reset a Font */
+    body {
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: #0f172a; /* Tmavě modré pozadí */
+      color: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    /* Kontejner chatu */
+    .chat-container {
+      width: 90%;
+      max-width: 500px;
+      background: #1e293b;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      height: 80vh;
+    }
+
+    h2 {
+      text-align: center;
+      margin-top: 0;
+      color: #818cf8; /* Hezká fialovo-modrá */
+      letter-spacing: 1px;
+    }
+
+    /* Tlačítko přihlášení */
+    .login-btn {
+      background: #4f46e5;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: transform 0.2s, background 0.3s;
+      margin-bottom: 15px;
+    }
+
+    .login-btn:hover {
+      background: #4338ca;
+      transform: scale(1.02);
+    }
+
+    /* Seznam zpráv */
+    #chat {
+      flex-grow: 1;
+      overflow-y: auto;
+      margin: 15px 0;
+      padding: 10px;
+      background: #0f172a;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Styl bublin */
+    .message-bubble {
+      background: #334155;
+      padding: 8px 15px;
+      border-radius: 15px;
+      border-bottom-left-radius: 2px;
+      max-width: 85%;
+      align-self: flex-start;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .message-bubble b {
+      display: block;
+      font-size: 0.8rem;
+      color: #818cf8;
+      margin-bottom: 3px;
+    }
+
+    /* Vstupní pole a odesílání */
+    .input-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    input {
+      flex-grow: 1;
+      background: #334155;
+      border: 1px solid #475569;
+      color: white;
+      padding: 12px 15px;
+      border-radius: 12px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #818cf8;
+    }
+
+    .send-btn {
+      background: #10b981; /* Zelená */
+      color: white;
+      border: none;
+      width: 50px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .send-btn:hover {
+      background: #059669;
+    }
+
+    /* Animace */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Custom Scrollbar */
+    #chat::-webkit-scrollbar { width: 5px; }
+    #chat::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
+  </style>
 </head>
 <body>
 
-<h2>👻 GhostTalk</h2>
+<div class="chat-container">
+  <h2>👻 GhostTalk</h2>
+  
+  <button class="login-btn" onclick="login()">Přihlásit se přes Google</button>
 
-<button onclick="login()">Přihlásit se přes Google</button>
+  <div id="chat">
+    </div>
 
-<div id="chat" style="margin-top:20px;"></div>
-
-<input id="messageInput" placeholder="Napiš zprávu">
-<button onclick="sendMessage()">Odeslat</button>
+  <div class="input-group">
+    <input id="messageInput" placeholder="Napiš zprávu...">
+    <button class="send-btn" onclick="sendMessage()">➤</button>
+  </div>
+</div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-  // 👉 SEM DOSADÍŠ svoje Firebase údaje
   const firebaseConfig = {
     apiKey: "AIzaSyB8olAwCB08KQ31UVXBt23sbrTwZlpsmg8",
     authDomain: "ghosttalk1.firebaseapp.com",
@@ -34,39 +168,58 @@
   let user = null;
 
   async function login() {
-    const result = await signInWithPopup(auth, provider);
-    user = result.user;
-    alert("Přihlášen jako: " + user.displayName);
+    try {
+      const result = await signInWithPopup(auth, provider);
+      user = result.user;
+      document.querySelector('.login-btn').innerText = "Přihlášen jako " + user.displayName;
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   async function sendMessage() {
-    const text = document.getElementById("messageInput").value;
+    const input = document.getElementById("messageInput");
+    const text = input.value;
 
     if (!user) {
       alert("Nejdřív se přihlas!");
       return;
     }
+    if (text.trim() === "") return;
 
     await addDoc(collection(db, "messages"), {
       text: text,
-      name: user.displayName
+      name: user.displayName,
+      createdAt: Date.now() // Přidáno pro řazení
     });
 
-    document.getElementById("messageInput").value = "";
+    input.value = "";
   }
 
+  // Poslech zpráv seřazených podle času
   onSnapshot(collection(db, "messages"), (snapshot) => {
     const chat = document.getElementById("chat");
     chat.innerHTML = "";
 
     snapshot.forEach(doc => {
       const msg = doc.data();
-      chat.innerHTML += "<p><b>" + msg.name + ":</b> " + msg.text + "</p>";
+      const div = document.createElement("div");
+      div.className = "message-bubble";
+      div.innerHTML = `<b>${msg.name}</b> ${msg.text}`;
+      chat.appendChild(div);
     });
+    
+    // Automatické scrollování dolů
+    chat.scrollTop = chat.scrollHeight;
   });
 
   window.login = login;
   window.sendMessage = sendMessage;
+
+  // Odesílání klávesou Enter
+  document.getElementById("messageInput").addEventListener("keypress", (e) => {
+    if (e.key === "Enter") sendMessage();
+  });
 </script>
 
 </body>
