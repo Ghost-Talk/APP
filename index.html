@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GhostTalk</title>
+</head>
+<body>
+
+<h2>👻 GhostTalk</h2>
+
+<button onclick="login()">Přihlásit se přes Google</button>
+
+<div id="chat" style="margin-top:20px;"></div>
+
+<input id="messageInput" placeholder="Napiš zprávu">
+<button onclick="sendMessage()">Odeslat</button>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+  // 👉 SEM DOSADÍŠ svoje Firebase údaje
+  const firebaseConfig = {
+    apiKey: "AIzaSyB8olAwCB08KQ31UVXBt23sbrTwZlpsmg8",
+    authDomain: "ghosttalk1.firebaseapp.com",
+    projectId: "ghosttalk1"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  let user = null;
+
+  async function login() {
+    const result = await signInWithPopup(auth, provider);
+    user = result.user;
+    alert("Přihlášen jako: " + user.displayName);
+  }
+
+  async function sendMessage() {
+    const text = document.getElementById("messageInput").value;
+
+    if (!user) {
+      alert("Nejdřív se přihlas!");
+      return;
+    }
+
+    await addDoc(collection(db, "messages"), {
+      text: text,
+      name: user.displayName
+    });
+
+    document.getElementById("messageInput").value = "";
+  }
+
+  onSnapshot(collection(db, "messages"), (snapshot) => {
+    const chat = document.getElementById("chat");
+    chat.innerHTML = "";
+
+    snapshot.forEach(doc => {
+      const msg = doc.data();
+      chat.innerHTML += "<p><b>" + msg.name + ":</b> " + msg.text + "</p>";
+    });
+  });
+
+  window.login = login;
+  window.sendMessage = sendMessage;
+</script>
+
+</body>
+</html>
